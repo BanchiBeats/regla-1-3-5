@@ -4,269 +4,609 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>La Regla 1-3-5</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+
     <style>
-        @media print {
-            @page { 
-                size: A4 portrait; 
-                margin: 1cm 1.5cm; 
-            }
-            body { 
-                background-color: white !important; 
-                font-size: 11px !important; 
-            }
-            .no-print { display: none !important; }
-            .print-container { 
-                box-shadow: none !important; 
-                max-width: 100% !important; 
-                margin: 0 !important; 
-                padding: 0 !important; 
-                border: none !important; 
-            }
-            
-            /* Compresión ajustada con recuperación de espacios críticos */
-            .mb-10, .mb-8 { margin-bottom: 0.35rem !important; }
-            .mb-6 { margin-bottom: 0.2rem !important; }
-            .mb-4 { margin-bottom: 0.2rem !important; }
-            .mt-12 { margin-top: 0.25rem !important; }
-            .pt-6 { padding-top: 0 !important; border-top: none !important; }
-            
-            /* Header Refinado */
-            .print-header-block {
-                display: block !important;
-                text-align: center !important;
-                padding-bottom: 0.5rem !important;
-                margin-bottom: 0.5rem !important;
-                border-bottom: 2px solid #cbd5e1 !important;
-            }
-            .print-header-block .w-full {
-                margin: 0 !important;
-            }
-            h1 { 
-                font-size: 1.4rem !important; 
-                margin-bottom: 0.1rem !important; 
-                text-transform: uppercase !important;
-                letter-spacing: 0.05em !important;
-                color: #0f172a !important;
-            }
-            h2 { font-size: 0.95rem !important; margin-bottom: 0 !important; }
-            p { margin-bottom: 0 !important; line-height: 1 !important; }
-            
-            .author-text {
-                font-style: italic !important;
-                color: #64748b !important;
-                font-size: 0.85rem !important;
-            }
+        /* =========================
+           Base / Theme
+        ========================== */
+        :root {
+            --bg: #f4f7fb;
+            --card: #ffffff;
+            --card-soft: #f8fafc;
+            --text: #0f172a;
+            --muted: #64748b;
+            --line: #e2e8f0;
+            --line-strong: #cbd5e1;
+            --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
 
-            .print-input { 
-                border: none !important; 
-                background: transparent !important; 
-                color: #334155 !important; 
-                margin-top: 0.2rem !important;
-                padding: 0 !important;
-                text-align: center !important;
-                font-weight: 600 !important;
-                font-size: 0.9rem !important;
-                width: 100% !important;
-            }
+            --big-bg: #fef2f2;
+            --big-accent: #dc2626;
+            --medium-bg: #fffbeb;
+            --medium-accent: #d97706;
+            --small-bg: #ecfdf5;
+            --small-accent: #059669;
 
-            /* Reglas de impresión para divs editables: regresan los renglones */
-            .group {
-                margin-bottom: 4px !important; /* Espaciado vital para leer la línea */
-                margin-top: 0 !important;
-            }
-            .editable-div { 
-                border-bottom: 1px solid #cbd5e1 !important; /* Renglón restaurado */
-                padding: 0 !important; 
-                min-height: 18px !important; /* Altura ajustada para no asfixiar letras */
-                line-height: 1.2 !important;
-                margin: 0 !important;
-            }
-            .checkbox-box {
-                width: 12px !important;
-                height: 12px !important;
-                margin-top: 2px !important;
-                margin-right: 6px !important;
-                border-width: 1px !important;
-            }
+            --focus-ring: 0 0 0 3px rgba(59, 130, 246, 0.25);
         }
 
-        /* Placeholder para contenteditable */
-        .editable-div:empty:before {
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+            background: radial-gradient(circle at top, #f8fbff 0%, var(--bg) 50%);
+            color: var(--text);
+            padding: 1rem;
+        }
+
+        .app {
+            max-width: 880px;
+            margin: 0 auto;
+            background: var(--card);
+            border: 1px solid var(--line);
+            border-radius: 20px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .app-shell { padding: 1.25rem; }
+
+        .header {
+            display: flex;
+            gap: 1rem;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px solid var(--line);
+            padding-bottom: 1rem;
+            margin-bottom: 1.25rem;
+        }
+
+        .header-main { flex: 1; }
+
+        h1 {
+            margin: 0;
+            font-size: clamp(1.5rem, 4vw, 2rem);
+            letter-spacing: 0.02em;
+            font-weight: 800;
+            color: #0b1329;
+        }
+
+        .subtitle {
+            margin: 0.3rem 0 0.75rem;
+            color: var(--muted);
+            font-size: 0.9rem;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 0.75rem;
+            max-width: 560px;
+        }
+
+        .field-label {
+            display: block;
+            margin-bottom: 0.35rem;
+            font-size: 0.78rem;
+            color: var(--muted);
+            font-weight: 600;
+            letter-spacing: 0.02em;
+        }
+
+        .text-input {
+            width: 100%;
+            border: 1px solid var(--line-strong);
+            border-radius: 10px;
+            padding: 0.55rem 0.7rem;
+            background: #fff;
+            color: var(--text);
+            font-size: 0.92rem;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease;
+        }
+
+        .text-input:focus,
+        .print-btn:focus,
+        .task-check:focus,
+        .task-text:focus {
+            outline: none;
+            box-shadow: var(--focus-ring);
+            border-color: #93c5fd;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .print-btn {
+            appearance: none;
+            border: 1px solid #0f172a;
+            background: #0f172a;
+            color: #fff;
+            border-radius: 10px;
+            padding: 0.6rem 0.95rem;
+            font-weight: 600;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
+            white-space: nowrap;
+        }
+
+        .print-btn:hover { transform: translateY(-1px); background: #1e293b; }
+
+        .sections {
+            display: grid;
+            gap: 1rem;
+        }
+
+        .section {
+            background: var(--card-soft);
+            border: 1px solid var(--line);
+            border-radius: 16px;
+            padding: 1rem;
+        }
+
+        .section.big { background: linear-gradient(180deg, #fff, var(--big-bg)); border-color: #fecaca; }
+        .section.medium { background: linear-gradient(180deg, #fff, var(--medium-bg)); border-color: #fde68a; }
+        .section.small { background: linear-gradient(180deg, #fff, var(--small-bg)); border-color: #bbf7d0; }
+
+        .section-head {
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            margin-bottom: 0.4rem;
+        }
+
+        .badge {
+            min-width: 1.6rem;
+            height: 1.6rem;
+            border-radius: 999px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.83rem;
+            font-weight: 800;
+            border: 1px solid transparent;
+        }
+
+        .section.big .badge { color: var(--big-accent); background: #fee2e2; border-color: #fecaca; }
+        .section.medium .badge { color: var(--medium-accent); background: #fef3c7; border-color: #fde68a; }
+        .section.small .badge { color: var(--small-accent); background: #d1fae5; border-color: #a7f3d0; }
+
+        h2 {
+            margin: 0;
+            font-size: 1rem;
+            font-weight: 750;
+            letter-spacing: 0.02em;
+        }
+
+        .section-note {
+            margin: 0 0 0.75rem;
+            color: var(--muted);
+            font-size: 0.82rem;
+        }
+
+        .task-list {
+            display: grid;
+            gap: 0.45rem;
+        }
+
+        .task-row {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            align-items: start;
+            gap: 0.55rem;
+        }
+
+        .task-check {
+            appearance: none;
+            width: 1rem;
+            height: 1rem;
+            margin-top: 0.45rem;
+            border: 2px solid var(--line-strong);
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.15s ease;
+        }
+
+        .task-check:checked {
+            background: #0f172a;
+            border-color: #0f172a;
+        }
+
+        .task-check:checked::after {
+            content: "";
+            position: absolute;
+            width: 0.24rem;
+            height: 0.52rem;
+            border: solid #fff;
+            border-width: 0 2px 2px 0;
+            transform: rotate(45deg);
+            top: 0.08rem;
+            left: 0.28rem;
+        }
+
+        .task-text {
+            min-height: 2rem;
+            border: 1px solid transparent;
+            border-bottom: 1px solid var(--line-strong);
+            padding: 0.35rem 0.2rem;
+            color: #1e293b;
+            background: transparent;
+            outline: none;
+            line-height: 1.35;
+            border-radius: 8px 8px 0 0;
+        }
+
+        .task-text:empty::before {
             content: attr(data-placeholder);
             color: #94a3b8;
             pointer-events: none;
             display: block;
         }
+
+        .task-row.completed .task-text {
+            color: #64748b;
+            text-decoration: line-through;
+            text-decoration-thickness: 2px;
+            text-decoration-color: #94a3b8;
+        }
+
+        .footer-note {
+            margin-top: 1rem;
+            border-top: 1px solid var(--line);
+            padding-top: 0.9rem;
+            color: #64748b;
+            font-size: 0.8rem;
+            text-align: center;
+        }
+
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            border: 0;
+        }
+
+        @media (max-width: 680px) {
+            body { padding: 0.7rem; }
+            .app-shell { padding: 1rem; }
+            .header { flex-direction: column; }
+            .meta-grid { grid-template-columns: 1fr; max-width: 100%; }
+            .header-actions { width: 100%; }
+            .print-btn { width: 100%; }
+        }
+
+        /* =========================
+           Print Styles (A4)
+        ========================== */
+        @media print {
+            @page {
+                size: A4 portrait;
+                margin: 1.2cm 1.4cm;
+            }
+
+            body {
+                padding: 0;
+                background: #fff !important;
+                color: #000 !important;
+                font-size: 11px;
+            }
+
+            .app {
+                max-width: 100%;
+                box-shadow: none;
+                border: none;
+                border-radius: 0;
+            }
+
+            .app-shell { padding: 0; }
+            .header { margin-bottom: 0.55rem; padding-bottom: 0.45rem; border-bottom: 2px solid #cbd5e1; }
+            h1 { font-size: 1.35rem; }
+            .subtitle { margin: 0.2rem 0 0.45rem; font-size: 0.76rem; }
+            .section { break-inside: avoid; padding: 0.55rem; border-radius: 10px; }
+            .section-note, .footer-note { font-size: 0.7rem; }
+            .task-list { gap: 0.25rem; }
+            .task-row { gap: 0.35rem; }
+            .task-text {
+                min-height: 18px;
+                padding: 0.1rem 0.1rem;
+                border-radius: 0;
+                border-color: transparent;
+                border-bottom: 1px solid #cbd5e1;
+            }
+
+            .task-check {
+                width: 11px;
+                height: 11px;
+                margin-top: 0.3rem;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+
+            .text-input {
+                border: none;
+                box-shadow: none;
+                padding: 0;
+                font-weight: 600;
+                background: transparent;
+            }
+
+            .no-print { display: none !important; }
+        }
     </style>
 </head>
-<body class="min-h-screen bg-slate-50 p-4 sm:p-8 font-sans">
+<body>
+    <!-- =========================
+         HTML
+    ========================== -->
+    <main class="app" aria-label="Planificador diario con la regla 1-3-5">
+        <div class="app-shell">
+            <header class="header">
+                <div class="header-main">
+                    <h1>La Regla 1-3-5</h1>
+                    <p class="subtitle">Plan diario de enfoque: 1 tarea grande, 3 medianas y 5 pequeñas.</p>
 
-    <div class="max-w-3xl mx-auto bg-white rounded-xl shadow-sm border border-slate-200 p-6 sm:p-10 print-container">
-        
-        <!-- Header -->
-        <div class="flex justify-between items-start border-b border-slate-200 pb-6 mb-8 print-header-block">
-            <div class="w-full mr-4 text-left print:text-center">
-                <h1 class="text-3xl font-extrabold text-slate-900 tracking-tight uppercase">La Regla 1-3-5</h1>
-                <p class="text-sm font-medium text-slate-400 mt-1 author-text">Por Alex Cavoulacos</p>
-                <input 
-                    type="text" 
-                    id="date-input"
-                    class="text-slate-600 mt-2 font-semibold capitalize bg-transparent border border-transparent outline-none focus:border-slate-300 w-full sm:w-1/2 hover:bg-slate-50 print:hover:bg-transparent transition-colors p-1 -ml-1 print:ml-0 rounded text-sm text-left print-input"
-                    placeholder="Fecha del plan"
-                >
-            </div>
-            <div class="no-print flex items-center gap-2">
-                <button onclick="window.print()" class="flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg hover:bg-slate-800 transition-colors shadow-sm font-medium text-sm whitespace-nowrap" title="Imprimir planificador">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect width="12" height="8" x="6" y="14"></rect></svg>
-                    Imprimir
-                </button>
-            </div>
-        </div>
-
-        <!-- 1 GRANDE -->
-        <section class="mb-10">
-            <div class="flex items-center gap-2 mb-4">
-                <span class="bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded text-sm print:bg-transparent print:border print:border-red-800 print:px-1 print:py-0">1</span>
-                <h2 class="text-xl font-bold text-slate-800">TAREA GRANDE</h2>
-            </div>
-            <p class="text-sm text-slate-500 mb-2 ml-8 no-print">El proyecto clave del día. Requiere foco profundo.</p>
-            <div class="ml-8 print:ml-6" id="tasks-big"></div>
-        </section>
-
-        <!-- 3 MEDIANAS -->
-        <section class="mb-10">
-            <div class="flex items-center gap-2 mb-4">
-                <span class="bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded text-sm print:bg-transparent print:border print:border-amber-800 print:px-1 print:py-0">3</span>
-                <h2 class="text-xl font-bold text-slate-800">TAREAS MEDIANAS</h2>
-            </div>
-            <p class="text-sm text-slate-500 mb-2 ml-8 no-print">Proyectos importantes (45-60 min). Puedes alternarlos.</p>
-            <div class="ml-8 print:ml-6" id="tasks-medium"></div>
-        </section>
-
-        <!-- 5 PEQUEÑAS -->
-        <section class="mb-6">
-            <div class="flex items-center gap-2 mb-4">
-                <span class="bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded text-sm print:bg-transparent print:border print:border-emerald-800 print:px-1 print:py-0">5</span>
-                <h2 class="text-xl font-bold text-slate-800">TAREAS PEQUEÑAS</h2>
-            </div>
-            <p class="text-sm text-slate-500 mb-2 ml-8 no-print">Acciones rápidas (15 min) administrativas o mecánicas.</p>
-            <div class="ml-8 print:ml-6" id="tasks-small"></div>
-        </section>
-
-        <div class="mt-12 text-center text-xs text-slate-400 no-print border-t border-slate-100 pt-6">
-            <p>Disciplina: No inicies las pequeñas hasta haber completado la Tarea Grande.</p>
-        </div>
-
-    </div>
-
-    <script>
-        const apiKey = "";
-        
-        const icons = {
-            wand: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m21.64 3.64-1.28-1.28a1.21 1.21 0 0 0-1.72 0L2.36 18.64a1.21 1.21 0 0 0 0 1.72l1.28 1.28a1.2 1.2 0 0 0 1.72 0L21.64 5.36a1.2 1.2 0 0 0 0-1.72Z"></path><path d="m14 7 3 3"></path><path d="M5 6v4"></path><path d="M19 14v4"></path><path d="M10 2v2"></path><path d="M7 8H3"></path><path d="M21 16h-4"></path><path d="M11 3H9"></path></svg>`,
-            spinner: `<svg class="animate-spin" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-6.219-8.56"></path></svg>`
-        };
-
-        function createTaskRow(id, placeholder) {
-            return `
-                <div class="flex items-start mb-2 group">
-                    <div class="mt-1.5 mr-3 w-4 h-4 rounded border-2 border-slate-300 flex-shrink-0 checkbox-box"></div>
-                    <div class="flex-grow relative">
-                        <div id="text-${id}" data-placeholder="${placeholder}" contenteditable="true"
-                            class="w-full bg-transparent border-b border-slate-200 focus:border-slate-800 outline-none py-1 text-slate-800 min-h-[30px] transition-colors editable-div"
-                            oninput="toggleButton('${id}')"></div>
-                        <div class="absolute right-0 top-1 opacity-0 group-hover:opacity-100 transition-opacity no-print">
-                            <button id="btn-${id}" onclick="handleRefine('${id}')" disabled
-                                class="p-1.5 text-slate-500 hover:text-indigo-600 hover:bg-indigo-50 rounded bg-white border border-slate-200 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed transition-all" title="Refinar redacción con IA">
-                                <span id="icon-${id}">${icons.wand}</span>
-                            </button>
+                    <div class="meta-grid">
+                        <div>
+                            <label class="field-label" for="author-input">Autor</label>
+                            <input id="author-input" class="text-input" type="text" placeholder="Tu nombre" aria-label="Nombre del autor del plan">
+                        </div>
+                        <div>
+                            <label class="field-label" for="date-input">Fecha del plan</label>
+                            <input id="date-input" class="text-input" type="text" aria-label="Fecha del plan diario">
                         </div>
                     </div>
                 </div>
+
+                <div class="header-actions no-print">
+                    <button id="print-btn" class="print-btn" type="button" aria-label="Imprimir planificador">
+                        Imprimir
+                    </button>
+                </div>
+            </header>
+
+            <div class="sections">
+                <section class="section big" aria-labelledby="big-title">
+                    <div class="section-head">
+                        <span class="badge" aria-hidden="true">1</span>
+                        <h2 id="big-title">TAREA GRANDE</h2>
+                    </div>
+                    <p class="section-note no-print">Proyecto clave del día. Requiere foco profundo.</p>
+                    <div id="tasks-big" class="task-list" role="list"></div>
+                </section>
+
+                <section class="section medium" aria-labelledby="medium-title">
+                    <div class="section-head">
+                        <span class="badge" aria-hidden="true">3</span>
+                        <h2 id="medium-title">TAREAS MEDIANAS</h2>
+                    </div>
+                    <p class="section-note no-print">Proyectos importantes de duración intermedia.</p>
+                    <div id="tasks-medium" class="task-list" role="list"></div>
+                </section>
+
+                <section class="section small" aria-labelledby="small-title">
+                    <div class="section-head">
+                        <span class="badge" aria-hidden="true">5</span>
+                        <h2 id="small-title">TAREAS PEQUEÑAS</h2>
+                    </div>
+                    <p class="section-note no-print">Acciones rápidas administrativas o de mantenimiento.</p>
+                    <div id="tasks-small" class="task-list" role="list"></div>
+                </section>
+            </div>
+
+            <p class="footer-note no-print">Disciplina: evita iniciar tareas pequeñas antes de completar la tarea grande.</p>
+        </div>
+    </main>
+
+    <script>
+        /* =========================
+           JavaScript
+           - Render de tareas
+           - Persistencia localStorage
+           - Interacción de checkbox + texto editable
+        ========================== */
+        const STORAGE_KEY = 'regla-1-3-5-state-v1';
+
+        const TASK_CONFIG = {
+            big: [{ id: 'b1', placeholder: 'Ej: Diseñar propuesta final del sprint' }],
+            medium: [
+                { id: 'm1', placeholder: 'Tarea mediana 1' },
+                { id: 'm2', placeholder: 'Tarea mediana 2' },
+                { id: 'm3', placeholder: 'Tarea mediana 3' }
+            ],
+            small: [
+                { id: 's1', placeholder: 'Tarea pequeña 1' },
+                { id: 's2', placeholder: 'Tarea pequeña 2' },
+                { id: 's3', placeholder: 'Tarea pequeña 3' },
+                { id: 's4', placeholder: 'Tarea pequeña 4' },
+                { id: 's5', placeholder: 'Tarea pequeña 5' }
+            ]
+        };
+
+        const state = {
+            author: '',
+            date: '',
+            tasks: {}
+        };
+
+        function getDefaultDate() {
+            return new Date().toLocaleDateString('es-ES', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
+        }
+
+        function createTaskRow(taskId, placeholder, label) {
+            const row = document.createElement('div');
+            row.className = 'task-row';
+            row.setAttribute('role', 'listitem');
+            row.dataset.taskId = taskId;
+
+            row.innerHTML = `
+                <input
+                    id="check-${taskId}"
+                    class="task-check"
+                    type="checkbox"
+                    aria-label="Marcar ${label} como completada"
+                />
+                <div
+                    id="text-${taskId}"
+                    class="task-text"
+                    contenteditable="true"
+                    role="textbox"
+                    aria-multiline="false"
+                    tabindex="0"
+                    data-placeholder="${placeholder}"
+                    aria-label="${label}"></div>
+                <span class="sr-only" id="hint-${taskId}">Presiona Enter para guardar el texto de la tarea.</span>
             `;
-        }
 
-        // Inicializar UI
-        document.getElementById('tasks-big').innerHTML = createTaskRow('b1', 'Ej: Programar módulo HTML/JS aplicativo web IMEIs...');
-        document.getElementById('tasks-medium').innerHTML = Array.from({length: 3}, (_, i) => createTaskRow(`m${i+1}`, `Tarea mediana ${i+1}`)).join('');
-        document.getElementById('tasks-small').innerHTML = Array.from({length: 5}, (_, i) => createTaskRow(`s${i+1}`, `Tarea pequeña ${i+1}`)).join('');
+            const checkbox = row.querySelector('.task-check');
+            const textEl = row.querySelector('.task-text');
 
-        // Fecha actual
-        const today = new Date();
-        document.getElementById('date-input').value = today.toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            checkbox.addEventListener('change', () => {
+                applyCompletedVisual(taskId, checkbox.checked);
+                updateTask(taskId, { completed: checkbox.checked });
+            });
 
-        // Remover temporalmente el título del documento durante la impresión para que no salga en el header nativo
-        let originalTitle = document.title;
-        window.onbeforeprint = function() {
-            document.title = ""; 
-        };
-        window.onafterprint = function() {
-            document.title = originalTitle; 
-        };
+            textEl.addEventListener('input', () => {
+                updateTask(taskId, { text: textEl.innerText.trim() });
+            });
 
-        function toggleButton(id) {
-            const text = document.getElementById(`text-${id}`).innerText.trim();
-            document.getElementById(`btn-${id}`).disabled = text.length === 0;
-        }
-
-        // Lógica de API Gemini
-        async function handleRefine(id) {
-            const textArea = document.getElementById(`text-${id}`);
-            const btn = document.getElementById(`btn-${id}`);
-            const iconContainer = document.getElementById(`icon-${id}`);
-            const originalText = textArea.innerText.trim();
-
-            if (!originalText) return;
-
-            btn.disabled = true;
-            iconContainer.innerHTML = icons.spinner;
-
-            const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
-            const prompt = `Actúa como un experto en productividad técnica y gerencial. Reescribe la siguiente tarea para que sea una acción específica, clara y ejecutable. Usa un verbo de acción al inicio (ej. "Auditar", "Programar", "Diseñar"). Debe ser muy breve, máximo 12 palabras. Devuelve SOLO el texto mejorado, sin comillas, sin viñetas y sin explicaciones adicionales. Tarea original: "${originalText}"`;
-
-            const payload = {
-                contents: [{ parts: [{ text: prompt }] }],
-                systemInstruction: { parts: [{ text: "Eres un asistente de productividad implacable. Tu única función es transformar texto vago en directivas claras y accionables. No conversas." }] }
-            };
-
-            let retries = 0;
-            const maxRetries = 5;
-            const delays = [1000, 2000, 4000, 8000, 16000];
-            let success = false;
-
-            while (retries <= maxRetries && !success) {
-                try {
-                    const response = await fetch(url, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-
-                    if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
-                    
-                    const data = await response.json();
-                    const refinedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
-                    
-                    if (refinedText) {
-                        textArea.innerText = refinedText.trim();
-                        success = true;
-                    } else {
-                        throw new Error("Respuesta inválida de la API");
-                    }
-                } catch (error) {
-                    if (retries === maxRetries) {
-                        console.error("Fallo final tras retentativas:", error);
-                    } else {
-                        await new Promise(resolve => setTimeout(resolve, delays[retries]));
-                        retries++;
-                    }
+            textEl.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter') {
+                    event.preventDefault();
+                    textEl.blur();
                 }
-            }
+            });
 
-            iconContainer.innerHTML = icons.wand;
-            toggleButton(id); 
+            textEl.addEventListener('blur', () => {
+                textEl.innerText = textEl.innerText.replace(/\n/g, ' ').trim();
+                updateTask(taskId, { text: textEl.innerText });
+            });
+
+            return row;
         }
+
+        function applyCompletedVisual(taskId, completed) {
+            const row = document.querySelector(`[data-task-id="${taskId}"]`);
+            if (!row) return;
+            row.classList.toggle('completed', completed);
+        }
+
+        function updateTask(taskId, patch) {
+            if (!state.tasks[taskId]) {
+                state.tasks[taskId] = { text: '', completed: false };
+            }
+            state.tasks[taskId] = { ...state.tasks[taskId], ...patch };
+            saveState();
+        }
+
+        function saveState() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            } catch (error) {
+                console.error('No se pudo guardar el estado local.', error);
+            }
+        }
+
+        function loadState() {
+            try {
+                const raw = localStorage.getItem(STORAGE_KEY);
+                if (!raw) {
+                    state.date = getDefaultDate();
+                    return;
+                }
+
+                const parsed = JSON.parse(raw);
+                state.author = typeof parsed.author === 'string' ? parsed.author : '';
+                state.date = typeof parsed.date === 'string' && parsed.date.trim() ? parsed.date : getDefaultDate();
+                state.tasks = parsed.tasks && typeof parsed.tasks === 'object' ? parsed.tasks : {};
+            } catch (error) {
+                console.error('No se pudo cargar el estado local.', error);
+                state.date = getDefaultDate();
+            }
+        }
+
+        function renderTasks() {
+            const sections = [
+                { key: 'big', container: document.getElementById('tasks-big'), prefix: 'tarea grande' },
+                { key: 'medium', container: document.getElementById('tasks-medium'), prefix: 'tarea mediana' },
+                { key: 'small', container: document.getElementById('tasks-small'), prefix: 'tarea pequeña' }
+            ];
+
+            sections.forEach(({ key, container, prefix }) => {
+                TASK_CONFIG[key].forEach((task, index) => {
+                    const label = `${prefix} ${index + 1}`;
+                    const row = createTaskRow(task.id, task.placeholder, label);
+                    container.appendChild(row);
+                });
+            });
+        }
+
+        function hydrateUI() {
+            const authorInput = document.getElementById('author-input');
+            const dateInput = document.getElementById('date-input');
+
+            authorInput.value = state.author;
+            dateInput.value = state.date || getDefaultDate();
+
+            Object.entries(state.tasks).forEach(([taskId, taskData]) => {
+                const textEl = document.getElementById(`text-${taskId}`);
+                const checkEl = document.getElementById(`check-${taskId}`);
+                if (!textEl || !checkEl) return;
+
+                textEl.innerText = taskData.text || '';
+                checkEl.checked = !!taskData.completed;
+                applyCompletedVisual(taskId, !!taskData.completed);
+            });
+        }
+
+        function bindMetaEvents() {
+            const authorInput = document.getElementById('author-input');
+            const dateInput = document.getElementById('date-input');
+
+            authorInput.addEventListener('input', () => {
+                state.author = authorInput.value;
+                saveState();
+            });
+
+            dateInput.addEventListener('input', () => {
+                state.date = dateInput.value;
+                saveState();
+            });
+
+            document.getElementById('print-btn').addEventListener('click', () => window.print());
+        }
+
+        function initialize() {
+            loadState();
+            renderTasks();
+            hydrateUI();
+            bindMetaEvents();
+
+            // Garantiza que exista estado para todas las tareas aún si estaban vacías.
+            [...TASK_CONFIG.big, ...TASK_CONFIG.medium, ...TASK_CONFIG.small].forEach((task) => {
+                if (!state.tasks[task.id]) {
+                    state.tasks[task.id] = { text: '', completed: false };
+                }
+            });
+            if (!state.date) state.date = getDefaultDate();
+            saveState();
+        }
+
+        initialize();
     </script>
 </body>
 </html>
