@@ -1,612 +1,382 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Regla 1-3-5</title>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Planificador Diario 1-3-5 | Banchi</title>
+<style>
+:root{
+  --bg-a:#f6f1ff;
+  --bg-b:#edf5ff;
+  --bg-c:#ffffff;
+  --card:rgba(255,255,255,.66);
+  --card-2:rgba(255,255,255,.82);
+  --line:rgba(255,255,255,.72);
+  --line-2:rgba(99,102,241,.16);
+  --text:#101828;
+  --muted:#667085;
+  --primary:#4f46e5;
+  --blue:#2563eb;
+  --cyan:#06b6d4;
+  --amber:#f59e0b;
+  --green:#10b981;
+  --shadow:0 24px 70px rgba(79,70,229,.12);
+  --shadow-soft:0 14px 35px rgba(59,76,122,.10);
+  --blur:blur(22px) saturate(150%);
+  --radius-xl:32px;
+  --radius-lg:24px;
+  --radius-md:18px;
+}
+*{box-sizing:border-box}
+body{
+  margin:0;
+  min-height:100vh;
+  padding:clamp(1rem,2.4vw,2rem);
+  font-family:Inter,"Plus Jakarta Sans",Manrope,"Segoe UI",Arial,sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(circle at 12% 10%,rgba(124,58,237,.18),transparent 28%),
+    radial-gradient(circle at 88% 18%,rgba(37,99,235,.18),transparent 30%),
+    radial-gradient(circle at 72% 86%,rgba(6,182,212,.14),transparent 30%),
+    linear-gradient(135deg,var(--bg-a),var(--bg-b) 52%,var(--bg-c));
+}
+button,input,textarea{font:inherit}
+.app{width:min(100%,980px);margin:0 auto;display:grid;gap:1.25rem}
+.glass{
+  background:linear-gradient(145deg,var(--card-2),var(--card));
+  border:1px solid var(--line);
+  box-shadow:var(--shadow);
+  backdrop-filter:var(--blur);
+  -webkit-backdrop-filter:var(--blur);
+}
+.header{border-radius:var(--radius-xl);padding:1.35rem;position:relative;overflow:hidden}
+.header:before{content:"";position:absolute;inset:0;background:linear-gradient(105deg,rgba(255,255,255,.45),transparent 42%,rgba(255,255,255,.24));pointer-events:none}
+.header-grid{position:relative;display:grid;grid-template-columns:1fr 280px;gap:1.25rem;align-items:center}
+.brand{display:grid;gap:.8rem}
+.kicker{width:max-content;padding:.45rem .8rem;border-radius:999px;background:rgba(255,255,255,.62);border:1px solid var(--line-2);color:#312e81;font-size:.78rem;font-weight:850;box-shadow:var(--shadow-soft)}
+.brand-logo{width:clamp(220px,34vw,315px);height:auto;display:block;filter:brightness(0) saturate(100%) invert(33%) sepia(77%) saturate(1592%) hue-rotate(224deg) brightness(99%) contrast(99%) drop-shadow(0 12px 24px rgba(79,70,229,.16))}
+.title{margin:0;font-size:clamp(1.4rem,3vw,2.05rem);line-height:1.05;font-weight:950;letter-spacing:-.04em}
+.subtitle{margin:0;max-width:640px;color:#475467;font-size:.98rem;line-height:1.6;font-weight:560}
+.actions{display:flex;gap:.65rem;flex-wrap:wrap;margin-top:.2rem}
+.btn{appearance:none;border:0;border-radius:999px;padding:.78rem 1.08rem;font-weight:850;cursor:pointer;transition:.18s ease;white-space:nowrap}
+.btn:hover{transform:translateY(-2px)}
+.btn-primary{color:#fff;background:linear-gradient(135deg,var(--blue),var(--primary),#7c3aed);box-shadow:0 16px 30px rgba(79,70,229,.22)}
+.btn-soft{color:#312e81;background:rgba(255,255,255,.68);border:1px solid var(--line-2);box-shadow:var(--shadow-soft)}
+.date-card{border-radius:var(--radius-lg);padding:1rem;display:grid;gap:.7rem;background:rgba(255,255,255,.58);border:1px solid var(--line);box-shadow:var(--shadow-soft)}
+.date-top{display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.date-top h2{margin:0;font-size:1rem;font-weight:950}
+.pill{display:grid;place-items:center;min-width:2.55rem;height:2.55rem;border-radius:999px;background:linear-gradient(135deg,#fff,#e9e7ff);border:1px solid var(--line-2);color:var(--primary);font-weight:950}
+.label{font-size:.78rem;color:var(--muted);font-weight:800}
+.date-row{position:relative}
+.date-input{width:100%;min-height:3.25rem;padding:.86rem 3.25rem .86rem 1rem;border-radius:18px;border:1px solid var(--line-2);background:rgba(255,255,255,.78);font-weight:800;color:var(--text);box-shadow:inset 0 1px 0 rgba(255,255,255,.8)}
+.date-input::-webkit-calendar-picker-indicator{opacity:0;position:absolute;inset:0;width:100%;height:100%;cursor:pointer}
+.calendar-btn{position:absolute;right:.45rem;top:50%;transform:translateY(-50%);width:2.4rem;height:2.4rem;border:0;border-radius:15px;color:#fff;background:linear-gradient(135deg,var(--blue),var(--primary));box-shadow:0 12px 24px rgba(79,70,229,.22);display:grid;place-items:center;cursor:pointer}
+.date-text{margin:0;color:#475467;font-size:.84rem;line-height:1.35;font-weight:760}
+.sections{display:grid;gap:1rem}
+.section{border-radius:var(--radius-xl);padding:1rem;position:relative;overflow:hidden}
+.section:before{content:"";position:absolute;width:12rem;height:12rem;right:-5rem;top:-6rem;border-radius:999px;background:var(--glow);filter:blur(12px)}
+.big{--accent:var(--blue);--glow:rgba(37,99,235,.16)}
+.medium{--accent:var(--amber);--glow:rgba(245,158,11,.15)}
+.small{--accent:var(--green);--glow:rgba(16,185,129,.15)}
+.section-head{position:relative;display:flex;align-items:center;gap:.85rem;margin-bottom:.9rem}
+.badge{display:grid;place-items:center;width:2.65rem;height:2.65rem;border-radius:18px;color:#fff;background:linear-gradient(135deg,var(--accent),var(--primary));font-size:1rem;font-weight:950;box-shadow:0 14px 28px rgba(79,70,229,.16)}
+.section-title{margin:0;font-size:1.08rem;font-weight:950;letter-spacing:-.02em}
+.task-list{position:relative;display:grid;gap:.7rem}
+.task-row{display:grid;grid-template-columns:auto 1fr;gap:.75rem;align-items:start;padding:.75rem;border-radius:20px;background:rgba(255,255,255,.58);border:1px solid var(--line);box-shadow:0 10px 25px rgba(59,76,122,.07)}
+.task-check{appearance:none;width:1.22rem;height:1.22rem;margin-top:.56rem;border-radius:8px;border:2px solid rgba(79,70,229,.22);background:#fff;cursor:pointer;position:relative}
+.task-check:checked{background:linear-gradient(135deg,var(--blue),var(--primary));border-color:transparent}
+.task-check:checked:after{content:"";position:absolute;width:.27rem;height:.56rem;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg);top:.08rem;left:.33rem}
+.task-input{width:100%;min-height:2.65rem;resize:vertical;overflow:hidden;padding:.56rem .65rem;border-radius:14px;border:1px solid rgba(99,102,241,.10);background:rgba(255,255,255,.60);color:#1d2939;font-weight:650;line-height:1.35}
+.task-input::placeholder{color:#98a2b3;font-weight:650}
+.completed{opacity:.72}.completed .task-input{text-decoration:line-through;color:#667085}
+.footer-note{text-align:center;color:var(--muted);font-size:.82rem;font-weight:700}
+@media(max-width:760px){.header-grid{grid-template-columns:1fr}.actions{width:100%}.btn{width:100%}}
+@media print{
+  @page{
+    size:A4 portrait;
+    margin:8mm;
+  }
 
-    <style>
-        /* =========================
-           Base / Theme
-        ========================== */
-        :root {
-            --bg: #f4f7fb;
-            --card: #ffffff;
-            --card-soft: #f8fafc;
-            --text: #0f172a;
-            --muted: #64748b;
-            --line: #e2e8f0;
-            --line-strong: #cbd5e1;
-            --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
+  html,body{
+    width:auto!important;
+    height:auto!important;
+    margin:0!important;
+    padding:0!important;
+    overflow:hidden!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
 
-            --big-bg: #fef2f2;
-            --big-accent: #dc2626;
-            --medium-bg: #fffbeb;
-            --medium-accent: #d97706;
-            --small-bg: #ecfdf5;
-            --small-accent: #059669;
+  body{
+    background:transparent!important;
+    color:var(--text)!important;
+  }
 
-            --focus-ring: 0 0 0 3px rgba(59, 130, 246, 0.25);
-        }
+  .no-print:not(.footer-note),.calendar-btn{
+    display:none!important;
+  }
 
-        * { box-sizing: border-box; }
+  .app{
+    width:100%!important;
+    max-width:none!important;
+    height:calc(297mm - 16mm)!important;
+    max-height:calc(297mm - 16mm)!important;
+    margin:0!important;
+    padding:5mm!important;
+    display:grid!important;
+    grid-template-rows:auto 1fr auto!important;
+    gap:2.6mm!important;
+    background:
+      radial-gradient(circle at 10% 8%,rgba(124,58,237,.16),transparent 28%),
+      radial-gradient(circle at 90% 16%,rgba(37,99,235,.15),transparent 30%),
+      radial-gradient(circle at 72% 84%,rgba(6,182,212,.12),transparent 30%),
+      linear-gradient(135deg,var(--bg-a),var(--bg-b) 52%,var(--bg-c))!important;
+    overflow:hidden!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
 
-        body {
-            margin: 0;
-            min-height: 100vh;
-            font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
-            background: radial-gradient(circle at top, #f8fbff 0%, var(--bg) 50%);
-            color: var(--text);
-            padding: 1rem;
-        }
+  .glass,.header,.date-card,.section,.task-row{
+    background:linear-gradient(145deg,rgba(255,255,255,.88),rgba(255,255,255,.70))!important;
+    border:1px solid rgba(255,255,255,.86)!important;
+    box-shadow:0 6px 18px rgba(79,70,229,.09)!important;
+    backdrop-filter:blur(10px) saturate(135%)!important;
+    -webkit-backdrop-filter:blur(10px) saturate(135%)!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
 
-        .app {
-            max-width: 880px;
-            margin: 0 auto;
-            background: var(--card);
-            border: 1px solid var(--line);
-            border-radius: 20px;
-            box-shadow: var(--shadow);
-            overflow: hidden;
-        }
+  .header{
+    width:100%!important;
+    border-radius:14px!important;
+    padding:2.6mm!important;
+    margin:0!important;
+    overflow:hidden!important;
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+  }
 
-        .app-shell { padding: 1.25rem; }
+  .header:before{
+    display:block!important;
+    background:linear-gradient(105deg,rgba(255,255,255,.46),transparent 42%,rgba(255,255,255,.26))!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
 
-        .header {
-            display: flex;
-            gap: 1rem;
-            justify-content: space-between;
-            align-items: flex-start;
-            border-bottom: 1px solid var(--line);
-            padding-bottom: 1rem;
-            margin-bottom: 1.25rem;
-        }
+  .header-grid{
+    display:grid!important;
+    grid-template-columns:1fr 55mm!important;
+    gap:4mm!important;
+    align-items:center!important;
+  }
 
-        .header-main { flex: 1; }
+  .brand{
+    gap:1.1mm!important;
+  }
 
-        h1 {
-            margin: 0;
-            font-size: clamp(1.5rem, 4vw, 2rem);
-            letter-spacing: 0.02em;
-            font-weight: 800;
-            color: #0b1329;
-        }
+  .kicker{
+    font-size:14px!important;
+    padding:1mm 2mm!important;
+    background:rgba(255,255,255,.74)!important;
+    border:1px solid rgba(99,102,241,.16)!important;
+    box-shadow:0 5px 14px rgba(59,76,122,.08)!important;
+  }
 
-        .subtitle {
-            margin: 0.3rem 0 0.75rem;
-            color: var(--muted);
-            font-size: 0.9rem;
-        }
+  .brand-logo{
+    width:40mm!important;
+    max-height:15mm!important;
+    object-fit:contain!important;
+    filter:brightness(0) saturate(100%) invert(33%) sepia(77%) saturate(1592%) hue-rotate(224deg) brightness(99%) contrast(99%) drop-shadow(0 5px 10px rgba(79,70,229,.14))!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
 
-        .meta-grid {
-            display: grid;
-            grid-template-columns: repeat(2, minmax(0, 1fr));
-            gap: 0.75rem;
-            max-width: 560px;
-        }
+  .title{
+    font-size:16px!important;
+    line-height:1!important;
+  }
 
-        .field-label {
-            display: block;
-            margin-bottom: 0.35rem;
-            font-size: 0.78rem;
-            color: var(--muted);
-            font-weight: 600;
-            letter-spacing: 0.02em;
-        }
+  .subtitle{
+    font-size:14px!important;
+    line-height:1.15!important;
+    max-width:112mm!important;
+    color:#475467!important;
+  }
 
-        .text-input {
-            width: 100%;
-            border: 1px solid var(--line-strong);
-            border-radius: 10px;
-            padding: 0.55rem 0.7rem;
-            background: #fff;
-            color: var(--text);
-            font-size: 0.92rem;
-            transition: border-color 0.15s ease, box-shadow 0.15s ease;
-        }
+  .date-card{
+    padding:2mm!important;
+    border-radius:10px!important;
+    gap:1.1mm!important;
+  }
 
-        .text-input:focus,
-        .print-btn:focus,
-        .task-check:focus,
-        .task-text:focus {
-            outline: none;
-            box-shadow: var(--focus-ring);
-            border-color: #93c5fd;
-        }
+  .date-top h2{
+    font-size:16px!important;
+  }
 
-        .header-actions {
-            display: flex;
-            gap: 0.5rem;
-        }
+  .date-input{
+    height:8mm!important;
+    min-height:8mm!important;
+    padding:1.1mm 1.6mm!important;
+    font-size:14px!important;
+    border-radius:6px!important;
+    background:rgba(255,255,255,.78)!important;
+    border:1px solid rgba(99,102,241,.16)!important;
+  }
 
-        .print-btn {
-            appearance: none;
-            border: 1px solid #0f172a;
-            background: #0f172a;
-            color: #fff;
-            border-radius: 10px;
-            padding: 0.6rem 0.95rem;
-            font-weight: 600;
-            font-size: 0.88rem;
-            cursor: pointer;
-            transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
-            box-shadow: 0 6px 16px rgba(15, 23, 42, 0.25);
-            white-space: nowrap;
-        }
+  .sections{
+    width:100%!important;
+    min-height:0!important;
+    display:grid!important;
+    grid-template-rows:auto auto auto!important;
+    gap:2.4mm!important;
+    overflow:hidden!important;
+  }
 
-        .print-btn:hover { transform: translateY(-1px); background: #1e293b; }
+  .section{
+    width:100%!important;
+    padding:2.2mm!important;
+    border-radius:12px!important;
+    overflow:hidden!important;
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+  }
 
-        .sections {
-            display: grid;
-            gap: 1rem;
-        }
+  .section:before{
+    display:block!important;
+    width:7rem!important;
+    height:7rem!important;
+    right:-3rem!important;
+    top:-4rem!important;
+    filter:blur(9px)!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
 
-        .section {
-            background: var(--card-soft);
-            border: 1px solid var(--line);
-            border-radius: 16px;
-            padding: 1rem;
-        }
+  .section-head{
+    gap:2mm!important;
+    margin-bottom:1.6mm!important;
+  }
 
-        .section.big { background: linear-gradient(180deg, #fff, var(--big-bg)); border-color: #fecaca; }
-        .section.medium { background: linear-gradient(180deg, #fff, var(--medium-bg)); border-color: #fde68a; }
-        .section.small { background: linear-gradient(180deg, #fff, var(--small-bg)); border-color: #bbf7d0; }
+  .badge{
+    width:8mm!important;
+    height:8mm!important;
+    border-radius:3mm!important;
+    font-size:14px!important;
+    box-shadow:0 7px 16px rgba(79,70,229,.16)!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
 
-        .section-head {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-            margin-bottom: 0.4rem;
-        }
+  .section-title{
+    font-size:16px!important;
+  }
 
-        .badge {
-            min-width: 1.6rem;
-            height: 1.6rem;
-            border-radius: 999px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.83rem;
-            font-weight: 800;
-            border: 1px solid transparent;
-        }
+  .task-list{
+    gap:1.15mm!important;
+  }
 
-        .section.big .badge { color: var(--big-accent); background: #fee2e2; border-color: #fecaca; }
-        .section.medium .badge { color: var(--medium-accent); background: #fef3c7; border-color: #fde68a; }
-        .section.small .badge { color: var(--small-accent); background: #d1fae5; border-color: #a7f3d0; }
+  .task-row{
+    padding:1.2mm!important;
+    border-radius:7px!important;
+    gap:1.6mm!important;
+    grid-template-columns:4mm 1fr!important;
+    background:rgba(255,255,255,.64)!important;
+    break-inside:avoid!important;
+    page-break-inside:avoid!important;
+  }
 
-        h2 {
-            margin: 0;
-            font-size: 1rem;
-            font-weight: 750;
-            letter-spacing: 0.02em;
-        }
+  .task-check{
+    width:3.2mm!important;
+    height:3.2mm!important;
+    margin-top:1.05mm!important;
+    border-radius:.8mm!important;
+    border-width:1px!important;
+    background:#fff!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
 
-        .section-note {
-            margin: 0 0 0.75rem;
-            color: var(--muted);
-            font-size: 0.82rem;
-        }
+  .task-check:checked{
+    background:linear-gradient(135deg,var(--blue),var(--primary))!important;
+    border-color:transparent!important;
+  }
 
-        .task-list {
-            display: grid;
-            gap: 0.45rem;
-        }
+  .task-input{
+    height:8.6mm!important;
+    min-height:8.6mm!important;
+    max-height:8.6mm!important;
+    resize:none!important;
+    overflow:hidden!important;
+    padding:1.1mm 1.5mm!important;
+    border-radius:6px!important;
+    font-size:14px!important;
+    line-height:1.05!important;
+    background:rgba(255,255,255,.72)!important;
+    border:1px solid rgba(99,102,241,.12)!important;
+    color:#111827!important;
+    box-shadow:none!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
 
-        .task-row {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            align-items: start;
-            gap: 0.55rem;
-        }
-
-        .task-check {
-            appearance: none;
-            width: 1rem;
-            height: 1rem;
-            margin-top: 0.45rem;
-            border: 2px solid var(--line-strong);
-            border-radius: 4px;
-            background: #fff;
-            cursor: pointer;
-            position: relative;
-            transition: all 0.15s ease;
-        }
-
-        .task-check:checked {
-            background: #0f172a;
-            border-color: #0f172a;
-        }
-
-        .task-check:checked::after {
-            content: "";
-            position: absolute;
-            width: 0.24rem;
-            height: 0.52rem;
-            border: solid #fff;
-            border-width: 0 2px 2px 0;
-            transform: rotate(45deg);
-            top: 0.08rem;
-            left: 0.28rem;
-        }
-
-        .task-text {
-            min-height: 2rem;
-            border: 1px solid transparent;
-            border-bottom: 1px solid var(--line-strong);
-            padding: 0.35rem 0.2rem;
-            color: #1e293b;
-            background: transparent;
-            outline: none;
-            line-height: 1.35;
-            border-radius: 8px 8px 0 0;
-        }
-
-        .task-text:empty::before {
-            content: attr(data-placeholder);
-            color: #94a3b8;
-            pointer-events: none;
-            display: block;
-        }
-
-        .task-row.completed .task-text {
-            color: #64748b;
-            text-decoration: line-through;
-            text-decoration-thickness: 2px;
-            text-decoration-color: #94a3b8;
-        }
-
-        .footer-note {
-            margin-top: 1rem;
-            border-top: 1px solid var(--line);
-            padding-top: 0.9rem;
-            color: #64748b;
-            font-size: 0.8rem;
-            text-align: center;
-        }
-
-        .sr-only {
-            position: absolute;
-            width: 1px;
-            height: 1px;
-            padding: 0;
-            margin: -1px;
-            overflow: hidden;
-            clip: rect(0, 0, 0, 0);
-            border: 0;
-        }
-
-        @media (max-width: 680px) {
-            body { padding: 0.7rem; }
-            .app-shell { padding: 1rem; }
-            .header { flex-direction: column; }
-            .meta-grid { grid-template-columns: 1fr; max-width: 100%; }
-            .header-actions { width: 100%; }
-            .print-btn { width: 100%; }
-        }
-
-        /* =========================
-           Print Styles (A4)
-        ========================== */
-        @media print {
-            @page {
-                size: A4 portrait;
-                margin: 1.2cm 1.4cm;
-            }
-
-            body {
-                padding: 0;
-                background: #fff !important;
-                color: #000 !important;
-                font-size: 11px;
-            }
-
-            .app {
-                max-width: 100%;
-                box-shadow: none;
-                border: none;
-                border-radius: 0;
-            }
-
-            .app-shell { padding: 0; }
-            .header { margin-bottom: 0.55rem; padding-bottom: 0.45rem; border-bottom: 2px solid #cbd5e1; }
-            h1 { font-size: 1.35rem; }
-            .subtitle { margin: 0.2rem 0 0.45rem; font-size: 0.76rem; }
-            .section { break-inside: avoid; padding: 0.55rem; border-radius: 10px; }
-            .section-note, .footer-note { font-size: 0.7rem; }
-            .task-list { gap: 0.25rem; }
-            .task-row { gap: 0.35rem; }
-            .task-text {
-                min-height: 18px;
-                padding: 0.1rem 0.1rem;
-                border-radius: 0;
-                border-color: transparent;
-                border-bottom: 1px solid #cbd5e1;
-            }
-
-            .task-check {
-                width: 11px;
-                height: 11px;
-                margin-top: 0.3rem;
-                print-color-adjust: exact;
-                -webkit-print-color-adjust: exact;
-            }
-
-            .text-input {
-                border: none;
-                box-shadow: none;
-                padding: 0;
-                font-weight: 600;
-                background: transparent;
-            }
-
-            .no-print { display: none !important; }
-        }
-    </style>
+  .footer-note{
+    display:block!important;
+    align-self:center!important;
+    margin:0!important;
+    padding:0!important;
+    font-size:14px!important;
+    line-height:1!important;
+    color:#667085!important;
+    text-align:center!important;
+    -webkit-print-color-adjust:exact!important;
+    print-color-adjust:exact!important;
+  }
+}
+</style>
 </head>
 <body>
-    <!-- =========================
-         HTML
-    ========================== -->
-    <main class="app" aria-label="Planificador diario con la regla 1-3-5">
-        <div class="app-shell">
-            <header class="header">
-                <div class="header-main">
-                    <h1>La Regla 1-3-5</h1>
-                    <p class="subtitle">Plan diario de enfoque: 1 tarea grande, 3 medianas y 5 pequeñas.</p>
-
-                    <div class="meta-grid">
-                        <div>
-                            <label class="field-label" for="author-input">Autor</label>
-                            <input id="author-input" class="text-input" type="text" placeholder="Tu nombre" aria-label="Nombre del autor del plan">
-                        </div>
-                        <div>
-                            <label class="field-label" for="date-input">Fecha del plan</label>
-                            <input id="date-input" class="text-input" type="text" aria-label="Fecha del plan diario">
-                        </div>
-                    </div>
-                </div>
-
-                <div class="header-actions no-print">
-                    <button id="print-btn" class="print-btn" type="button" aria-label="Imprimir planificador">
-                        Imprimir
-                    </button>
-                </div>
-            </header>
-
-            <div class="sections">
-                <section class="section big" aria-labelledby="big-title">
-                    <div class="section-head">
-                        <span class="badge" aria-hidden="true">1</span>
-                        <h2 id="big-title">TAREA GRANDE</h2>
-                    </div>
-                    <p class="section-note no-print">Proyecto clave del día. Requiere foco profundo.</p>
-                    <div id="tasks-big" class="task-list" role="list"></div>
-                </section>
-
-                <section class="section medium" aria-labelledby="medium-title">
-                    <div class="section-head">
-                        <span class="badge" aria-hidden="true">3</span>
-                        <h2 id="medium-title">TAREAS MEDIANAS</h2>
-                    </div>
-                    <p class="section-note no-print">Proyectos importantes de duración intermedia.</p>
-                    <div id="tasks-medium" class="task-list" role="list"></div>
-                </section>
-
-                <section class="section small" aria-labelledby="small-title">
-                    <div class="section-head">
-                        <span class="badge" aria-hidden="true">5</span>
-                        <h2 id="small-title">TAREAS PEQUEÑAS</h2>
-                    </div>
-                    <p class="section-note no-print">Acciones rápidas administrativas o de mantenimiento.</p>
-                    <div id="tasks-small" class="task-list" role="list"></div>
-                </section>
-            </div>
-
-            <p class="footer-note no-print">Disciplina: evita iniciar tareas pequeñas antes de completar la tarea grande.</p>
-        </div>
-    </main>
-
-    <script>
-        /* =========================
-           JavaScript
-           - Render de tareas
-           - Persistencia localStorage
-           - Interacción de checkbox + texto editable
-        ========================== */
-        const STORAGE_KEY = 'regla-1-3-5-state-v1';
-
-        const TASK_CONFIG = {
-            big: [{ id: 'b1', placeholder: 'Ej: Diseñar propuesta final del sprint' }],
-            medium: [
-                { id: 'm1', placeholder: 'Tarea mediana 1' },
-                { id: 'm2', placeholder: 'Tarea mediana 2' },
-                { id: 'm3', placeholder: 'Tarea mediana 3' }
-            ],
-            small: [
-                { id: 's1', placeholder: 'Tarea pequeña 1' },
-                { id: 's2', placeholder: 'Tarea pequeña 2' },
-                { id: 's3', placeholder: 'Tarea pequeña 3' },
-                { id: 's4', placeholder: 'Tarea pequeña 4' },
-                { id: 's5', placeholder: 'Tarea pequeña 5' }
-            ]
-        };
-
-        const state = {
-            author: '',
-            date: '',
-            tasks: {}
-        };
-
-        function getDefaultDate() {
-            return new Date().toLocaleDateString('es-ES', {
-                weekday: 'long',
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric'
-            });
-        }
-
-        function createTaskRow(taskId, placeholder, label) {
-            const row = document.createElement('div');
-            row.className = 'task-row';
-            row.setAttribute('role', 'listitem');
-            row.dataset.taskId = taskId;
-
-            row.innerHTML = `
-                <input
-                    id="check-${taskId}"
-                    class="task-check"
-                    type="checkbox"
-                    aria-label="Marcar ${label} como completada"
-                />
-                <div
-                    id="text-${taskId}"
-                    class="task-text"
-                    contenteditable="true"
-                    role="textbox"
-                    aria-multiline="false"
-                    tabindex="0"
-                    data-placeholder="${placeholder}"
-                    aria-label="${label}"></div>
-                <span class="sr-only" id="hint-${taskId}">Presiona Enter para guardar el texto de la tarea.</span>
-            `;
-
-            const checkbox = row.querySelector('.task-check');
-            const textEl = row.querySelector('.task-text');
-
-            checkbox.addEventListener('change', () => {
-                applyCompletedVisual(taskId, checkbox.checked);
-                updateTask(taskId, { completed: checkbox.checked });
-            });
-
-            textEl.addEventListener('input', () => {
-                updateTask(taskId, { text: textEl.innerText.trim() });
-            });
-
-            textEl.addEventListener('keydown', (event) => {
-                if (event.key === 'Enter') {
-                    event.preventDefault();
-                    textEl.blur();
-                }
-            });
-
-            textEl.addEventListener('blur', () => {
-                textEl.innerText = textEl.innerText.replace(/\n/g, ' ').trim();
-                updateTask(taskId, { text: textEl.innerText });
-            });
-
-            return row;
-        }
-
-        function applyCompletedVisual(taskId, completed) {
-            const row = document.querySelector(`[data-task-id="${taskId}"]`);
-            if (!row) return;
-            row.classList.toggle('completed', completed);
-        }
-
-        function updateTask(taskId, patch) {
-            if (!state.tasks[taskId]) {
-                state.tasks[taskId] = { text: '', completed: false };
-            }
-            state.tasks[taskId] = { ...state.tasks[taskId], ...patch };
-            saveState();
-        }
-
-        function saveState() {
-            try {
-                localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-            } catch (error) {
-                console.error('No se pudo guardar el estado local.', error);
-            }
-        }
-
-        function loadState() {
-            try {
-                const raw = localStorage.getItem(STORAGE_KEY);
-                if (!raw) {
-                    state.date = getDefaultDate();
-                    return;
-                }
-
-                const parsed = JSON.parse(raw);
-                state.author = typeof parsed.author === 'string' ? parsed.author : '';
-                state.date = typeof parsed.date === 'string' && parsed.date.trim() ? parsed.date : getDefaultDate();
-                state.tasks = parsed.tasks && typeof parsed.tasks === 'object' ? parsed.tasks : {};
-            } catch (error) {
-                console.error('No se pudo cargar el estado local.', error);
-                state.date = getDefaultDate();
-            }
-        }
-
-        function renderTasks() {
-            const sections = [
-                { key: 'big', container: document.getElementById('tasks-big'), prefix: 'tarea grande' },
-                { key: 'medium', container: document.getElementById('tasks-medium'), prefix: 'tarea mediana' },
-                { key: 'small', container: document.getElementById('tasks-small'), prefix: 'tarea pequeña' }
-            ];
-
-            sections.forEach(({ key, container, prefix }) => {
-                TASK_CONFIG[key].forEach((task, index) => {
-                    const label = `${prefix} ${index + 1}`;
-                    const row = createTaskRow(task.id, task.placeholder, label);
-                    container.appendChild(row);
-                });
-            });
-        }
-
-        function hydrateUI() {
-            const authorInput = document.getElementById('author-input');
-            const dateInput = document.getElementById('date-input');
-
-            authorInput.value = state.author;
-            dateInput.value = state.date || getDefaultDate();
-
-            Object.entries(state.tasks).forEach(([taskId, taskData]) => {
-                const textEl = document.getElementById(`text-${taskId}`);
-                const checkEl = document.getElementById(`check-${taskId}`);
-                if (!textEl || !checkEl) return;
-
-                textEl.innerText = taskData.text || '';
-                checkEl.checked = !!taskData.completed;
-                applyCompletedVisual(taskId, !!taskData.completed);
-            });
-        }
-
-        function bindMetaEvents() {
-            const authorInput = document.getElementById('author-input');
-            const dateInput = document.getElementById('date-input');
-
-            authorInput.addEventListener('input', () => {
-                state.author = authorInput.value;
-                saveState();
-            });
-
-            dateInput.addEventListener('input', () => {
-                state.date = dateInput.value;
-                saveState();
-            });
-
-            document.getElementById('print-btn').addEventListener('click', () => window.print());
-        }
-
-        function initialize() {
-            loadState();
-            renderTasks();
-            hydrateUI();
-            bindMetaEvents();
-
-            // Garantiza que exista estado para todas las tareas aún si estaban vacías.
-            [...TASK_CONFIG.big, ...TASK_CONFIG.medium, ...TASK_CONFIG.small].forEach((task) => {
-                if (!state.tasks[task.id]) {
-                    state.tasks[task.id] = { text: '', completed: false };
-                }
-            });
-            if (!state.date) state.date = getDefaultDate();
-            saveState();
-        }
-
-        initialize();
-    </script>
+<main class="app">
+  <header class="header glass">
+    <div class="header-grid">
+      <div class="brand">
+        <span class="kicker">✦ Planificador</span>
+        <img class="brand-logo" src="banchi_logo_cropped.png" alt="Logo BanchiBeats">
+        <h2 class="title">Regla 1-3-5</h2>
+        <p class="subtitle">Define una prioridad principal, tres avances importantes y cinco pendientes rápidos antes de imprimir.</p>
+        <div class="actions no-print"><button id="print-btn" class="btn btn-primary">Imprimir</button><button id="reset-btn" class="btn btn-soft">Limpiar tareas</button></div>
+      </div>
+      <aside class="date-card">
+        <div class="date-top"><h2>Fecha</h2></div>
+        <div class="date-row"><input id="date-input" class="date-input" type="date"/><button id="calendar-btn" class="calendar-btn no-print" type="button">▣</button></div>
+      </aside>
+    </div>
+  </header>
+  <section class="sections">
+    <section class="section big glass"><div class="section-head"><span class="badge">1</span><h2 class="section-title">Tarea grande</h2></div><div id="tasks-big" class="task-list"></div></section>
+    <section class="section medium glass"><div class="section-head"><span class="badge">3</span><h2 class="section-title">Tareas medianas</h2></div><div id="tasks-medium" class="task-list"></div></section>
+    <section class="section small glass"><div class="section-head"><span class="badge">5</span><h2 class="section-title">Tareas pequeñas</h2></div><div id="tasks-small" class="task-list"></div></section>
+  </section>
+  <p class="footer-note no-print">© 2026 BanchiBeats. Todos los derechos reservados.</p>
+</main>
+<script>
+const STORAGE_KEY='regla-135-banchi-saas-v1';
+const TASK_CONFIG={big:[{id:'b1',placeholder:'Prioridad principal del día'}],medium:[{id:'m1',placeholder:'Tarea mediana 1'},{id:'m2',placeholder:'Tarea mediana 2'},{id:'m3',placeholder:'Tarea mediana 3'}],small:[{id:'s1',placeholder:'Tarea pequeña 1'},{id:'s2',placeholder:'Tarea pequeña 2'},{id:'s3',placeholder:'Tarea pequeña 3'},{id:'s4',placeholder:'Tarea pequeña 4'},{id:'s5',placeholder:'Tarea pequeña 5'}]};
+const state={date:'',tasks:{}};
+function getTodayISO(){const d=new Date();return new Date(d.getTime()-d.getTimezoneOffset()*60000).toISOString().split('T')[0]}
+function parseDate(v){if(!v)return null;const [y,m,d]=v.split('-').map(Number);return y&&m&&d?new Date(y,m-1,d):null}
+function formatDate(v){const d=parseDate(v);if(!d)return'Selecciona una fecha.';const t=d.toLocaleDateString('es-PE',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});return t.charAt(0).toUpperCase()+t.slice(1)}
+function allTasks(){return[...TASK_CONFIG.big,...TASK_CONFIG.medium,...TASK_CONFIG.small]}
+function autoResize(t){t.style.height='auto';t.style.height=t.scrollHeight+'px'}
+function save(){localStorage.setItem(STORAGE_KEY,JSON.stringify(state))}
+function load(){try{const raw=localStorage.getItem(STORAGE_KEY);if(!raw){state.date=getTodayISO();return}const p=JSON.parse(raw);state.date=p.date||getTodayISO();state.tasks=p.tasks||{}}catch{state.date=getTodayISO()}}
+function update(id,patch){state.tasks[id]={...(state.tasks[id]||{text:'',completed:false}),...patch};save()}
+function row(id,placeholder,label){const el=document.createElement('div');el.className='task-row';el.dataset.taskId=id;el.innerHTML=`<input id="check-${id}" class="task-check" type="checkbox" aria-label="Marcar ${label} como completada"><textarea id="text-${id}" class="task-input" rows="1" placeholder="${placeholder}" aria-label="${label}"></textarea>`;const c=el.querySelector('.task-check'),t=el.querySelector('.task-input');c.addEventListener('change',()=>{el.classList.toggle('completed',c.checked);update(id,{completed:c.checked})});t.addEventListener('input',()=>{autoResize(t);update(id,{text:t.value.trim()})});return el}
+function render(){[['big','tasks-big','tarea grande'],['medium','tasks-medium','tarea mediana'],['small','tasks-small','tarea pequeña']].forEach(([key,container,prefix])=>{const box=document.getElementById(container);box.innerHTML='';TASK_CONFIG[key].forEach((task,i)=>box.appendChild(row(task.id,task.placeholder,`${prefix} ${i+1}`)))})}
+function hydrate(){const d=document.getElementById('date-input');d.value=state.date||getTodayISO();Object.entries(state.tasks).forEach(([id,data])=>{const t=document.getElementById(`text-${id}`),c=document.getElementById(`check-${id}`),r=document.querySelector(`[data-task-id="${id}"]`);if(!t||!c||!r)return;t.value=data.text||'';autoResize(t);c.checked=!!data.completed;r.classList.toggle('completed',!!data.completed)})}
+function reset(){if(!confirm('¿Deseas limpiar todas las tareas?'))return;allTasks().forEach(task=>{state.tasks[task.id]={text:'',completed:false};const t=document.getElementById(`text-${task.id}`),c=document.getElementById(`check-${task.id}`),r=document.querySelector(`[data-task-id="${task.id}"]`);if(t){t.value='';autoResize(t)}if(c)c.checked=false;if(r)r.classList.remove('completed')});save()}
+function syncPrint(){document.querySelectorAll('.task-input').forEach(t=>t.textContent=t.value)}
+function init(){load();allTasks().forEach(t=>{if(!state.tasks[t.id])state.tasks[t.id]={text:'',completed:false}});save();render();hydrate();const d=document.getElementById('date-input');d.addEventListener('change',()=>{state.date=d.value||getTodayISO();save()});document.getElementById('calendar-btn').addEventListener('click',()=>{if(d.showPicker)d.showPicker();else d.click()});document.getElementById('print-btn').addEventListener('click',()=>{syncPrint();window.print()});window.addEventListener('beforeprint',syncPrint);document.getElementById('reset-btn').addEventListener('click',reset)}
+init();
+</script>
 </body>
 </html>
